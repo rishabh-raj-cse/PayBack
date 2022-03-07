@@ -104,6 +104,15 @@ app.get("/api/delete/all", async (req, res) => {
         res.json({ success: false, error: error?.message })
     }
 })
+app.get("/api/delete/:id", async (req, res) => {
+    try {
+        const deletedUser = await users.deleteOne({ _id: req.params.id });
+        res.json({ success: true, user: deletedUser })
+    }
+    catch (error) {
+        res.json({ success: false, error: error?.message })
+    }
+})
 
 
 
