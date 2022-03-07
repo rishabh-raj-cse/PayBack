@@ -249,9 +249,14 @@ const getTotalScore = ({ basicScore, personalScore, cardScore, bankScore, addres
 
     if (cardScore) {
         totalScore = (basicScore + personalScore + cardScore + addressScore + licenseScore + staffScore + businessScore) / 7;
-    } else {
+    }
+    if (bankScore) {
         totalScore = (basicScore + personalScore + bankScore + addressScore + licenseScore + staffScore + businessScore) / 7;
     }
+
+
+    totalScore = (basicScore + personalScore + addressScore + licenseScore + staffScore + businessScore) / 6;
+
     return parseInt(totalScore);
 }
 
