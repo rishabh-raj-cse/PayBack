@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema({
     ownerEmail: {
         type: String,
     },
-    ownerPassword: {
+    ownerPin: {
         type: String,
     },
     personalDetails: {

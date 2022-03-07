@@ -31,37 +31,78 @@ app.get("/", async (req, res) => {
 })
 //CRUD OPERATIONS
 app.post("/api/create", async (req, res) => {
-    const { title, gender, firstName, lastName, dob, ownerEmail, ownerPassword, personalDetails, cardDetails, bankDetails, addressDetails, licenseDetails, businessDetails, staffDetails } = req.body;
 
-    const scores = {
-        basicScore: getBasicScore({ title, gender, firstName, lastName, dob, ownerEmail, ownerPassword }),
-        personalScore: getPersonalScore({ personalDetails }),
-        cardScore: getCardScore({ cardDetails }),
-        bankScore: getBankScore({ bankDetails }),
-        addressScore: getAddressScore({ addressDetails }),
-        licenseScore: getLicenseScore({ licenseDetails }),
-        // businessScore: getBusinessScore({ businessDetails }),
-        staffScore: getStaffScore({ staffDetails }),
-        passwordScore: getPasswordScore({ ownerPassword }),
+
+    const { title, gender, firstName, lastName, dob, ownerEmail, ownerPin, personalDetails, cardDetails, bankDetails, addressDetails, licenseDetails, businessDetails, staffDetails } = req.body;
+
+    try {
+        const scores = {
+            basicScore: getBasicScore({ title, gender, firstName, lastName, dob, ownerEmail, ownerPin }),
+            personalScore: getPersonalScore({ personalDetails }),
+            addressScore: getAddressScore({ addressDetails }),
+            licenseScore: getLicenseScore({ licenseDetails }),
+            businessScore: getBusinessScore({ businessDetails }),
+            staffScore: getStaffScore({ staffDetails }),
+            passwordScore: getPasswordScore({ ownerPin }),
+        }
+
+        const scorePayload = { basicScore: scores.basicScore || 0, personalScore: scores.personalScore || 0, addressScore: scores.addressScore || 0, licenseScore: scores.licenseScore || 0, staffScore: scores.staffScore || 0, businessScore: scores.businessScore || 0 };
+        if (cardDetails) {
+            const cardScore = getCardScore({ cardDetails });
+            Object.assign(scorePayload, { cardScore })
+            Object.assign(scores, { cardScore })
+        }
+        if (bankDetails) {
+            const bankScore = getBankScore({ bankDetails });
+            Object.assign(scorePayload, { bankScore })
+            Object.assign(scores, { bankScore })
+        }
+
+        scores.totalScore = getTotalScore(scorePayload)
+
+        const payload = { title, gender, firstName, lastName, dob, ownerEmail, ownerPin, personalDetails, cardDetails, bankDetails, addressDetails, licenseDetails, businessDetails, staffDetails, scores }
+
+        const setOwner = await users.create(payload);
+
+
+        res.json({ success: true, user: setOwner })
+
+    } catch (error) {
+        console.log(error?.message);
+        res.json({ success: false, error: error?.message })
     }
-    scores.totalScore = getTotalScore({ basicScore: scores.basicScore || 0, personalScore: scores.personalScore || 0, cardScore: scores.cardScore || 0, bankScore: scores.bankScore || 0, addressScore: scores.addressScore || 0, licenseScore: scores.licenseScore || 0, staffScore: scores.staffScore || 0 })
 
-    const payload = { title, gender, firstName, lastName, dob, ownerEmail, ownerPassword, personalDetails, cardDetails, bankDetails, addressDetails, licenseDetails, businessDetails, staffDetails, scores }
-
-    const setOwner = await users.create(payload);
-
-    res.json({ success: true, user: setOwner })
 
 });
 
 app.get("/api/get", async (req, res) => {
-    const getOwner = await users.find({}, { _id: 1, firstName: 1, lastName: 1, staffDetails: 1, scores: 1, ownerEmail: 1, addressDetails: 1 });
-    res.json(getOwner)
+
+    try {
+        const getOwner = await users.find({}, { _id: 1, firstName: 1, lastName: 1, staffDetails: 1, scores: 1, ownerEmail: 1, addressDetails: 1 });
+        res.json(getOwner)
+    }
+    catch (error) {
+        res.json({ success: false, error: error?.message })
+    }
 });
 
 app.get("/api/get/:id", async (req, res) => {
-    const getOwnerbyId = await users.findById(req.params.id);
-    res.json(getOwnerbyId)
+    try {
+        const getOwnerbyId = await users.findById(req.params.id);
+        res.json(getOwnerbyId)
+    }
+    catch (error) {
+        res.json({ success: false, error: error?.message })
+    }
+})
+app.get("/api/delete/all", async (req, res) => {
+    try {
+        await users.deleteMany({});
+        res.json("deleted all users")
+    }
+    catch (error) {
+        res.json({ success: false, error: error?.message })
+    }
 })
 
 
