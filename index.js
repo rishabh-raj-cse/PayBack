@@ -10,7 +10,7 @@ const users = require("./schema/users");
 const { getPersonalScore, getBasicScore, getTotalScore, getCardScore, getBankScore, getAddressScore, getLicenseScore, getBusinessScore, getStaffScore, getPasswordScore } = require("./helpers/getScore");
 
 
-const port = 3000;
+const port = 8080;
 connectDatabase();
 
 server.listen(port, () => {
